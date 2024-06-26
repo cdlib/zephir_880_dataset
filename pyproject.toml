@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "graham-analysis"
+version = "0.1.0"
+description = ""
+authors = ["Charlie Collett <charlie.collett@ucop.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+mysql-connector-python = "^8.4.0"
+python-dotenv = "^1.0.1"
+pandas = "^2.2.2"
+pymarc = "^5.1.2"
+isort = "^5.13.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
