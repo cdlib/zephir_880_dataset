@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "graham-analysis"
+name = "zephir_880_dataset"
 version = "0.1.0"
 description = ""
-authors = ["Charlie Collett <charlie.collett@ucop.edu>"]
+authors = []
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
