@@ -29,7 +29,10 @@ def get_title_from_marc(marc):
     except MissingLinkedFields as e:
         print(f"An error occurred: {e}")
         linked_880s = None
-
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        linked_880s = None
+        
     # If there is a linked 880 field, return the title and the formatted 880 field
     if linked_880s:
         return title, linked_880s[0].format_field()
@@ -92,44 +95,52 @@ mydb = mysql.connector.connect(
 query = "SELECT id as htid, metadata_json FROM zephir_filedata WHERE id IN ({});"
 
 
-# Chunk requests to the database for efficiency
+# Assuming 'df' is your main dataframe and 'query' is the SQL query text
 id_list = df['htid'].to_list()
 chunk_size = 10000
 chunks = [id_list[x:x+chunk_size] for x in range(0, len(id_list), chunk_size)]
 num_chunks = len(chunks)
 
+# Temporary storage for query results
+results_list = []
+
 print("starting query")
 start_query_time = time.time()
-# Iterate over the chunks with index
-for i, chunk in enumerate(chunks):
-    # Format the chunk into a comma-separated list of quoted IDs
-    comma_id_list_chunk = ','.join(["'{}'".format(i) for i in chunk])
-    formatted_query = query.format(comma_id_list_chunk)
 
-    print("Querying chunk {} of {}".format(i+1, num_chunks))
+for i, chunk in enumerate(chunks):
+    comma_id_list_chunk = ','.join(f"'{id}'" for id in chunk)
+    formatted_query = query.format(comma_id_list_chunk)
+    print(f"Querying chunk {i+1} of {num_chunks}")
     query_time = time.time()
-    # Execute the query
+
     with mydb.cursor() as mycursor:
         mycursor.execute(formatted_query)
         results = mycursor.fetchall()
 
-        for row in results:
-            htid, metadata_json = row
+        # Store results in a structured list
+        results_list.extend([
+            {'htid': row[0], 'title': get_title_from_marc(row[1])[0], '880': get_title_from_marc(row[1])[1]}
+            for row in results
+        ])
 
-            title, field880 = get_title_from_marc(metadata_json)
-
-            # Add the title and 880 field to the dataframe
-            df.loc[df['htid'] == htid, 'title'] = title
-            df.loc[df['htid'] == htid, '880'] = field880
     print("query finished: ", time.time() - query_time)
+
 # Close the database connection
 mydb.close()
-print("total query time for all records: ", time.time()-start_query_time)
+
+# Create a new DataFrame from the structured list
+results_df = pd.DataFrame(results_list)
+
+# Merge this DataFrame with the original 'df' using 'htid' as key
+df = pd.merge(df, results_df, on='htid', how='left')
+
+print("total query time for all records: ", time.time() - start_query_time)
+
 
 # write the dataframe to a tsv file
 print("writing file")
 write_time = time.time()
-df.to_csv('880_record_dataset.tsv', sep='\t', index=False)
+df.to_csv('880_records_dataset.tsv', sep='\t', index=False)
 print("write time: ", time.time()-write_time)
 
 # print the time taken to run the script

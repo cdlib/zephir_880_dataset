@@ -13,6 +13,7 @@ python-dotenv = "^1.0.1"
 pandas = "^2.2.2"
 pymarc = "^5.1.2"
 isort = "^5.13.2"
+jupyter = "^1.0.0"
 
 
 [build-system]

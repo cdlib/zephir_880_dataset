@@ -1,4 +1,4 @@
-# Zephir 880 Dataset
+# Zephir 880 Dataset and Analysis
 
 This repository contains scripts to generate an 880 dataset for analysis. HathiTrust is analyzing all volume records that include an 880-245 and require data be extracted from Zephir for this analysis. There are two scripts that generate this dataset.
 
@@ -7,10 +7,11 @@ This repository contains scripts to generate an 880 dataset for analysis. HathiT
 - Poetry
 - Database credentials in a `.env` file
   
-## 880 Volume Dataset
+## 880 Volume Dataset and Analysis
 - Script: `generate_880_volume_dataset.py` 
-- Outupt: `880_volume_dataset.csv`
-
+- Outupt: `880_volumes_dataset.csv`
+- Analysis: `880_volumes_analysis.ipynb` (Jupyter Notebook) *Very limited analysis*
+  
 Generates a dataset of volumes that contain an 880-245. While it can be used to count all volumes with 880-245 in the supplied record, it's primary purpose is to build the final dataset. The dataset includes the following columns:
 - `cid`
 - `namespace`,
@@ -21,9 +22,11 @@ Generates a dataset of volumes that contain an 880-245. While it can be used to 
 - `var_score`
 - `vufind_sort`
   
+
 ## 880 Record Dataset
-script: `generate_880_record_dataset.py`
-output: `880_record_dataset.tsv`
+- Script: `generate_880_record_dataset.py`
+- Output: `880_records_dataset.tsv`
+- Analysis: `880_records_analysis.ipynb` (Jupyter Notebook)
 
 Generates a dataset of records with 880-245 fields. The script uses the output from the volume dataset, and makes the following changes. 
 - Removes duplicates of the same record, which is common when one contributor has multiple volumes with the same bibliographic record. It achieves this by keeping only one entry per contributor system ID (ILS number).
